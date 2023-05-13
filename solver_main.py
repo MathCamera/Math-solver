@@ -6,7 +6,7 @@ from .logic import SymPyGamma
 
 g = SymPyGamma()
 
-def solve_sympy(equation):
+def solve_sympy_equation(equation):
     if "=" in equation:
         line = equation.split("=")
         line_1 = line[1]
@@ -59,7 +59,6 @@ def solve_sympy(equation):
         return result
 
     except Exception as exc:
-        logging.exception(exc)
         return {"status_code":1,"message":"invalid input","type":"None"}
 
 def solve_equation(equation):
@@ -69,4 +68,16 @@ def solve_equation(equation):
         return {"status_code":0,"message":str(equ_res),"type":equ_type}
     
     except:
-        return solve_sympy(equation)
+        return solve_sympy_equation(equation)
+
+def solve_equation_system(system):
+    try:
+        solution = g.eval(f"solve({system})")
+        message = solution[1]["output"]
+        status_code = 0
+
+    except:
+        message = "invalid input"
+        status_code = 1
+
+    return {"status_code":status_code,"message":message}

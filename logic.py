@@ -52,9 +52,8 @@ def mathjax(*args):
         if hasattr(obj, 'as_latex'):
             tex_code.append(obj.as_latex())
         else:
-            tex_code.append(latex(obj))
+            tex_code.append(obj)
 
-    tag = '<script type="math/tex; mode=display">'
     if len(args) == 1:
         obj = args[0]
         res = tex_code[0]
@@ -63,13 +62,7 @@ def mathjax(*args):
             not obj.is_Float and
             obj.is_finite is not False and
             hasattr(obj, 'evalf')):
-            tag = '<script type="math/tex; mode=display" data-numeric="true" ' \
-                  'data-output-repr="{}" data-approximation="{}">'.format(
-                      repr(obj), latex(obj.evalf(15)))
-            
             res = latex(obj.evalf(15))
-
-    tex_code = ''.join(tex_code)
 
     return res
 
@@ -230,14 +223,10 @@ class SymPyGamma(object):
         components, cards, evaluated, is_function = self.get_cards(arguments, evaluator, evaluated)
 
         if is_function:
-            latex_input = ''.join(['<script type="math/tex; mode=display">',
-                                   latexify(parsed, evaluator),
-                                   '</script>'])
-            #latex_input = latexify(parsed, evaluator)
+            latex_input = ''.join(parsed)
+
         else:
             latex_input = mathjax(evaluated)
-            #latex_input = mathjax_latex(evaluated)
-            
             
         result = []
 
@@ -268,7 +257,7 @@ class SymPyGamma(object):
             result.append({
                 'title': 'Result',
                 'input': removeSymPy(parsed),
-                'output': format_by_type(evaluated, arguments, mathjax_latex)
+                'output': format_by_type(evaluated, arguments, mathjax) #replaced mathjax_latex to mathjax
             })
         else:
             var = components['variable']
@@ -278,7 +267,7 @@ class SymPyGamma(object):
             if is_function and not is_function_handled(arguments[0]):
                 result.append(
                     {"title": "Result", "input": "",
-                     "output": format_by_type(evaluated, arguments, mathjax_latex)})
+                     "output": format_by_type(evaluated, arguments, mathjax)}) #replaced mathjax_latex to mathjax
 
             line = "simplify(input_evaluated)"
             simplified = evaluator.eval(line,
@@ -291,11 +280,11 @@ class SymPyGamma(object):
                 simplified != arguments.args[0]):
                 result.append(
                     {"title": "Simplification", "input": repr(simplified),
-                     "output": mathjax_latex(simplified)})
+                     "output": mathjax(simplified)}) #replaced mathjax_latex to mathjax
             elif arguments.function == 'simplify':
                 result.append(
                     {"title": "Simplification", "input": "",
-                     "output": mathjax_latex(evaluated)})
+                     "output": mathjax(evaluated)}) #replaced mathjax_latex to mathjax
 
             for card_name in cards:
                 card = get_card(card_name)
@@ -342,7 +331,8 @@ class SymPyGamma(object):
             'var': repr(variable),
             'title': card.format_title(evaluated),
             'input': card.format_input(repr(evaluated), components),
-            'pre_output': latex(card.pre_output_function(evaluated, variable))
+            #'pre_output': latex(card.pre_output_function(evaluated, variable))
+            'pre_output': card.pre_output_function(evaluated, variable)
         }
 
     def eval_card(self, card_name, expression, variable, parameters):
@@ -360,5 +350,5 @@ class SymPyGamma(object):
 
         return {
             'value': repr(result),
-            'output': card.format_output(result, mathjax_latex)
+            'output': card.format_output(result, mathjax)
         }

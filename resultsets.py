@@ -135,6 +135,7 @@ class MultiResultCard(ResultCard):
     def format_output(self, output, formatter):
         if not isinstance(output, list):
             return output
+
         html = ["<ul>"]
         for card, result in output:
             html.append("<li>")
@@ -401,10 +402,18 @@ def format_list(items, formatter):
     try:
         if len(items) == 0:
             return "<p>No result</p>"
+        '''
         html = ['<ul>']
         for item in items:
             html.append('<li>{}</li>'.format(formatter(item)))
         html.append('</ul>')
+        return '\n'.join(html)
+    except TypeError:  # not iterable, like None
+        return formatter(items)
+        '''
+        html = []
+        for item in items:
+            html.append(formatter(item))
         return '\n'.join(html)
     except TypeError:  # not iterable, like None
         return formatter(items)
